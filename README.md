@@ -1,5 +1,5 @@
 
-# svelte-cordova
+# vp-svelte-cordova
 
 Develop a svelte app with cordova, including hot reload from your device.
 Read more about it on my [blog](https://www.learningsomethingnew.com/introducing-svelte-cordova-template)
