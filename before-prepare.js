@@ -8,6 +8,7 @@ if (!process.env.CORDOVA_PLATFORM) {
 
 const fs = require('fs-extra')
 const production = process.env.CORDOVA_PROD;
+const platform = process.env.CORDOVA_PLATFORM;
 let networkInterfaces = os.networkInterfaces()
 
 function info(msg) {
@@ -48,12 +49,14 @@ function generateIndexHtml(ctx) {
   const lines = htmlContent.split(/\r?\n/g).reverse()
 
   const bodyIndex = lines.findIndex(line => line.match(/\s*<\/body/))
-
   let cordovaJsScript = '    <script src="cordova.js"></script>'
   if (!production) {
+    let isBrowser = ctx.opts.platforms.includes('browser')
     let isIos = ctx.opts.platforms.includes('ios')
-    const cordovaJsLocation = isIos ? 'bundle' : 'assets';
-    cordovaJsScript = `    <script src="cdvfile://localhost/${cordovaJsLocation}/www/cordova.js"></script>`
+    if(!isBrowser) {
+      const cordovaJsLocation = isIos ? 'bundle' : 'assets';
+      cordovaJsScript = `    <script src="cdvfile://localhost/${cordovaJsLocation}/www/cordova.js"></script>`
+    }
   }
 
   if (bodyIndex >= 0) {
@@ -88,7 +91,7 @@ function copyPublicFiles() {
 
 const publicFolder = '../public'
 const ip = process.env.SERVER_IP ? process.env.SERVER_IP : ipLogic.getIP(networkInterfaces)
-const url = production ? 'index.html' : `http://${ip}:5000`
+const url = (production || platform == 'browser') ? 'index.html' : `http://${ip}:5000`
 let svelteFiles = [
   'index.html',
   'bundle.js',
