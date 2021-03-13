@@ -9,8 +9,8 @@ Read more about it on my [blog](https://www.learningsomethingnew.com/introducing
 The easiest way to get started is with the template, which scaffolds a svelte app using degit, with a cordova folder inside, using cordova-svelte hooks for setting everything up.
 
 ```bash
-npx degit syonip/svelte-cordova-template svelte-cordova-app
-cd svelte-cordova-app
+npx degit dinopasic/vp-svelte-cordova-template ViewpointDeviceApp
+cd ViewpointDeviceApp
 npm i
 ```
 
