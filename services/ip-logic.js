@@ -1,4 +1,4 @@
-function getIP(networkInterfaces) {
+function getIP(networkInterfaces, macAddress = '') {
   let interfaces = []
   for (let int in networkInterfaces) {
     let isLocalhost = networkInterfaces[int].map(x => x.address).includes('127.0.0.1')
@@ -9,6 +9,9 @@ function getIP(networkInterfaces) {
   }
 
   let ip = interfaces.flat().filter(x => x.family == 'IPv4').map(x => x.address)[0]
+  if(macAddress != '')
+    ip = interfaces.flat().filter(x => x.family == 'IPv4' && x.mac == macAddress).map(x => x.address)[0]
+    
   return ip
 }
 

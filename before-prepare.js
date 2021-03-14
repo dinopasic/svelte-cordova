@@ -1,5 +1,6 @@
 const os = require('os');
 const ipLogic = require('./services/ip-logic.js')
+const cordovaConfigPath = 'config.xml'
 
 if (!process.env.CORDOVA_PLATFORM) {
   console.log('process.env.CORDOVA_PLATFORM not defined. Not running before-prepare.js hook.')
@@ -42,6 +43,27 @@ function updateConfigUrl(cordovaConfigPath, url) {
   }
   cordovaConfig = lines.reverse().join('\n')
   fs.writeFileSync(cordovaConfigPath, cordovaConfig)
+}
+
+function readConfigValue(cordovaConfigPath, key) {
+  let cordovaConfig = fs.readFileSync(cordovaConfigPath, 'utf-8')
+  const lines = cordovaConfig.split(/\r?\n/g).reverse()
+
+  const configValueExtractor = extractText(['value="','"/>']);
+  let keyValueLineIndex = lines.findIndex(line => line.includes('<preference name="' + key))
+
+  if (keyValueLineIndex >= 0) {
+    return configValueExtractor(lines[keyValueLineIndex])
+  }
+  return ''
+}
+
+function extractText([beg, end]) {
+  const matcher = new RegExp(`${beg}(.*?)${end}`,'gm');
+  const normalise = (str) => str.slice(beg.length,end.length*-1);
+  return function(str) {
+      return str.match(matcher).map(normalise);
+  }
 }
 
 function generateIndexHtml(ctx) {
@@ -90,7 +112,9 @@ function copyPublicFiles() {
 }
 
 const publicFolder = '../public'
-const ip = process.env.SERVER_IP ? process.env.SERVER_IP : ipLogic.getIP(networkInterfaces)
+let debugNetworkMac = readConfigValue(cordovaConfigPath, 'DeviceDebuggingNetworkMacAddress')
+
+const ip = process.env.SERVER_IP ? process.env.SERVER_IP : ipLogic.getIP(networkInterfaces, debugNetworkMac)
 const url = (production || platform == 'browser') ? 'index.html' : `http://${ip}:5000`
 let svelteFiles = [
   'index.html',
@@ -101,7 +125,6 @@ let svelteFiles = [
 ]
 
 function runHook(ctx) {
-  const cordovaConfigPath = 'config.xml'
   if (!url || !cordovaConfigPath) {
     console.error(`url or config path don't exist`)
     return
