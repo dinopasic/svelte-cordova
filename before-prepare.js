@@ -49,22 +49,25 @@ function readConfigValue(cordovaConfigPath, key) {
   let cordovaConfig = fs.readFileSync(cordovaConfigPath, 'utf-8')
   const lines = cordovaConfig.split(/\r?\n/g).reverse()
 
-  const configValueExtractor = extractText(['value="','"/>']);
   let keyValueLineIndex = lines.findIndex(line => line.includes('<preference name="' + key))
 
   if (keyValueLineIndex >= 0) {
-    return configValueExtractor(lines[keyValueLineIndex])
+    return substrInBetween(lines[keyValueLineIndex], 'value="', '"/>')
   }
   return ''
 }
 
-function extractText([beg, end]) {
-  const matcher = new RegExp(`${beg}(.*?)${end}`,'gm');
-  const normalise = (str) => str.slice(beg.length,end.length*-1);
-  return function(str) {
-      return str.match(matcher).map(normalise);
+function substrInBetween(whole_str, str1, str2){
+  if (whole_str.indexOf(str1) === -1 || whole_str.indexOf(str2) === -1) {
+      return undefined; // or ""
+ }
+ strlength1 = str1.length;
+ return whole_str.substring(
+               whole_str.indexOf(str1) + strlength1, 
+               whole_str.indexOf(str2)
+              );
+
   }
-}
 
 function generateIndexHtml(ctx) {
   let htmlContent = fs.readFileSync(`${publicFolder}/index.html`, 'utf-8')
@@ -100,6 +103,7 @@ function clearWWW() {
     fs.removeSync(`www/${file}`)
   })
 }
+
 
 function copyPublicFiles() {
 
