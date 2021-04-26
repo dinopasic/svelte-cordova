@@ -52,7 +52,7 @@ function readConfigValue(cordovaConfigPath, key) {
   let keyValueLineIndex = lines.findIndex(line => line.includes('<preference name="' + key))
 
   if (keyValueLineIndex >= 0) {
-    return substrInBetween(lines[keyValueLineIndex], 'value="', '"/>')
+    return substrInBetween(lines[keyValueLineIndex], 'value="', '" />')
   }
   return ''
 }
